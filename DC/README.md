@@ -1,4 +1,4 @@
-Divide and Conquer STD Generation
+# Divide and Conquer STD Generation
 
 # Installation
 
