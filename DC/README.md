@@ -1,3 +1,5 @@
+Divide and Conquer STD Generation
+
 # Installation
 
 The simplest and recommended way to install is using `pip`:
