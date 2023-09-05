@@ -1,0 +1,58 @@
+{% extends "users/base.html" %}
+{% block title %} Home Page {% endblock title%}
+{% block content %}
+    <div class="container mt-5 mb-5">
+        {% for img_obj in img_list %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>{{ img_obj.title }}</strong> <span class="float-right">{{ img_obj.created_at }}</span>
+            </div>
+            <div class="card-body">
+                <button type="button" class="btn btn-outline-dark btn-view" data-toggle="modal" data-target="#ModalViewer" src="media/{{ img_obj.left_image }}" title="{{ img_obj.title }} (Left)">Left</button>
+                <button type="button" class="btn btn-outline-dark btn-view" data-toggle="modal" data-target="#ModalViewer" src="media/{{ img_obj.upper_image }}" title="{{ img_obj.title }} (Upper)">Upper</button>
+                <button type="button" class="btn btn-outline-dark btn-view" data-toggle="modal" data-target="#ModalViewer" src="media/{{ img_obj.front_image }}" title="{{ img_obj.title }} (Front)">Front</button>
+                <button type="button" class="btn btn-outline-dark btn-view" data-toggle="modal" data-target="#ModalViewer" src="media/{{ img_obj.lower_image }}" title="{{ img_obj.title }} (Lower)">Lower</button>
+                <button type="button" class="btn btn-outline-dark btn-view" data-toggle="modal" data-target="#ModalViewer" src="media/{{ img_obj.right_image }}" title="{{ img_obj.title }} (Right)">Right</button>
+                <button type="button" class="btn btn-danger btn-delete float-right" id="{{ img_obj.id }}">&times;</button>
+            </div>
+        </div>
+        {% endfor %}
+        {% if pages %}
+        <nav aria-label="..." class="mt-5 mb-5">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if current_page == 1 %} disabled {% endif %}">
+                    <a class="page-link" href="?page={{ current_page|add:-1 }}">Previous</a>
+                </li>
+                {% for page in pages %}
+                <li class="page-item {% if current_page == page %} active {% endif %}">
+                    <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+                </li>
+                {% endfor %}
+                <li class="page-item {% if current_page == pages|last %} disabled {% endif %}">
+                    <a class="page-link" href="?page={{ current_page|add:1 }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+        {% else %}
+        <div class="text-center">
+            <span>No images uploaded yet.</span>
+        </div>
+        {% endif %}
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="ModalViewer" tabindex="-1" role="dialog" aria-labelledby="Image Viewer" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered full_modal-dialog" role="document">
+            <div class="modal-content full_modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="ModalLongTitle"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                    <img class="card-img-top" src="" alt="Image upload">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

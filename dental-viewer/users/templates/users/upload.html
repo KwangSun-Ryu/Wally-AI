@@ -1,0 +1,108 @@
+{% extends "users/base.html" %}
+{% block title %} Home Page {% endblock title%}
+{% block content %}
+    <div class="container mt-5">
+        {% if img_obj %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            Succesfully uploaded <strong>{{img_obj.title}}</strong>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endif %}
+        <form method="POST" enctype="multipart/form-data" class="p-3">
+            {% csrf_token %}
+            <div class="form-group row">
+                <div class="mb-1">
+                    <strong>Title</strong>
+                </div>
+                <input type="text" class="form-control" placeholder="Enter title" name="title" required>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <strong>Image</strong>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label" for="frontImage">Front</label>
+                        <div class="col-md-10 custom-file">
+                            <input type="file" class="custom-file-input" id="frontImage" name="front_image" accept="image/png, image/jpeg" required>
+                            <label class="custom-file-label" for="frontImage">Choose image</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label" for="leftImage">Left</label>
+                        <div class="col-md-10 custom-file">
+                            <input type="file" class="custom-file-input" id="leftImage" name="left_image" accept="image/png, image/jpeg" required>
+                            <label class="custom-file-label" for="leftImage">Choose image</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label" for="rightImage">Right</label>
+                        <div class="col-md-10 custom-file">
+                            <input type="file" class="custom-file-input" id="rightImage" name="right_image" accept="image/png, image/jpeg" required>
+                            <label class="custom-file-label" for="rightImage">Choose image</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label" for="upperImage">Upper</label>
+                        <div class="col-md-10 custom-file">
+                            <input type="file" class="custom-file-input" id="upperImage" name="upper_image" accept="image/png, image/jpeg" required>
+                            <label class="custom-file-label" for="upperImage">Choose image</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label" for="lowerImage">Lower</label>
+                        <div class="col-md-10 custom-file">
+                            <input type="file" class="custom-file-input" id="lowerImage" name="lower_image" accept="image/png, image/jpeg" required>
+                            <label class="custom-file-label" for="lowerImage">Choose image</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <strong>Annotation</strong>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label" for="frontAnn">Front</label>
+                        <div class="col-md-10 custom-file">
+                            <input type="file" class="custom-file-input" id="frontAnn" name="front_ann" accept="application/json" required>
+                            <label class="custom-file-label" for="frontAnn">Choose image</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label" for="leftAnn">Left</label>
+                        <div class="col-md-10 custom-file">
+                            <input type="file" class="custom-file-input" id="leftAnn" name="left_ann" accept="application/json" required>
+                            <label class="custom-file-label" for="leftAnn">Choose image</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label" for="rightAnn">Right</label>
+                        <div class="col-md-10 custom-file">
+                            <input type="file" class="custom-file-input" id="rightAnn" name="right_ann" accept="application/json" required>
+                            <label class="custom-file-label" for="rightAnn">Choose image</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label" for="upperAnn">Upper</label>
+                        <div class="col-md-10 custom-file">
+                            <input type="file" class="custom-file-input" id="upperAnn" name="upper_ann" accept="application/json" required>
+                            <label class="custom-file-label" for="upperAnn">Choose image</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label" for="lowerAnn">Lower</label>
+                        <div class="col-md-10 custom-file">
+                            <input type="file" class="custom-file-input" id="lowerAnn" name="lower_ann" accept="application/json" required>
+                            <label class="custom-file-label" for="lowerAnn">Choose image</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <button type="submit" class="btn btn-primary btn-block">Save</button>
+            </div>
+        </form>
+    </div>
+{% endblock content %}
