@@ -53,7 +53,10 @@ class ChangePasswordView(SuccessMessageMixin, PasswordChangeView):
 
 
 def segmentation(form_image, form_annotation):
+    # Alpha
     alpha = 0.6
+
+    # Colors
     colors = {
         "11": (0.122, 0.467, 0.706),
         "12": (0.682, 0.780, 0.910),
@@ -80,19 +83,46 @@ def segmentation(form_image, form_annotation):
         "45": (0.957, 0.792, 0.894),
         "46": (0.902, 0.961, 0.788),
     }
+
+    # Image
     original    = cv2.imread("media/" + str(form_image))
-    annotation  = json.load(open("media/" + str(form_annotation)))
     image       = original.copy()
+    
+    # Annotation
+    annotation  = json.load(open("media/" + str(form_annotation)))
+    
+    # Hulls
+    hulls = {}
     for tooth in annotation['tooth']:
         # Label
         label = tooth["teeth_num"]
         # Segmentation
         points = np.array(tooth["segmentation"])
-        contours = cv2.convexHull(points)
+        hull = cv2.convexHull(points)
+        hulls[label] = hull
+    hulls = dict(sorted(hulls.items(), key=lambda item: item[0]))
+
+    # Cropping
+    polys = {}
+    for label in hulls.keys():
+        poly = Polygon(np.squeeze(hulls[label]))
+        for label_ in hulls.keys():
+            if label <= label_:
+                continue
+            poly_ = Polygon(np.squeeze(hulls[label_]))
+            poly = poly.difference(poly_)
+        polys[label] = poly
+    polys = dict(sorted(polys.items(), key=lambda item: item[0], reverse=True))
+
+    # Add contours and texts
+    int_coords = lambda x: np.array(x).round().astype(np.int32)
+    for label, poly in polys.items():
+        coords_3d = np.expand_dims(int_coords(poly.exterior.coords), axis=1)
+        # Contour
         cv2.drawContours(
             image       = image,
-            contours    = [contours], 
-            contourIdx  = -1, 
+            contours    = [coords_3d],
+            contourIdx  = -1,
             color       = (
                 int(255 * colors[label][2]),
                 int(255 * colors[label][1]),
@@ -101,17 +131,18 @@ def segmentation(form_image, form_annotation):
             thickness   = cv2.FILLED,
         )
         # Text
-        cx = int(np.mean(contours[:, :, 0]) - 50)
-        cy = int(np.mean(contours[:, :, 1]) + 30)
+        cx = int(np.mean(coords_3d[:, :, 0]) - 50)
+        cy = int(np.mean(coords_3d[:, :, 1]) + 30)
         cv2.putText(
-            img = image,
-            text = label,
-            org= (cx, cy),
-            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-            fontScale=3,
-            color=(255, 255, 255),
-            thickness=10,
+            img         = image,
+            text        = label,
+            org         = (cx, cy),
+            fontFace    = cv2.FONT_HERSHEY_SIMPLEX,
+            fontScale   = 3,
+            color       = (255, 255, 255),
+            thickness   = 10,
         )
+
     # Opacity
     image = cv2.addWeighted(
         src1    = image, 
@@ -120,6 +151,7 @@ def segmentation(form_image, form_annotation):
         beta    = 1 - alpha, 
         gamma   = 0,
     )
+
     # Save
     cv2.imwrite("media/" + str(form_image), image)
 
