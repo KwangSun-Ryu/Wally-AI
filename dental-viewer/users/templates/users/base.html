@@ -84,8 +84,25 @@
       var title = $(this).attr('title');
       var img = $(this).attr('src');
       $('.modal-title').text(title);
-      $('.modal-body').find('img').attr('src', "");
-      $('.modal-body').find('img').attr('src', img);
+      
+      // Split the file path into directory, base name, and extension
+      const pathParts = img.split('/');
+      const fileName = pathParts.pop();
+      const directory = pathParts.join('/');
+      const [baseName, extension] = fileName.split('.');
+
+      // Add path to the base name
+      const newBaseName_bordered = `${baseName}_bordered`;
+      const newBaseName_filled = `${baseName}_filled`;
+
+      // Reassemble the file path with the new base name and the original extension
+      const newPath_bordered = `${directory}/${newBaseName_bordered}.${extension}`;
+      const newPath_filled = `${directory}/${newBaseName_filled}.${extension}`;
+      
+      $('.modal-body').find('#img-bordered').attr('src', "");
+      $('.modal-body').find('#img-filled').attr('src', "");
+      $('.modal-body').find('#img-bordered').attr('src', newPath_bordered);
+      $('.modal-body').find('#img-filled').attr('src', newPath_filled);
     });
     $(".custom-file-input").on("change", function() {
       var fileName = $(this).val().split("\\").pop();

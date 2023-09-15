@@ -1,3 +1,4 @@
+import os
 import math
 import json
 import cv2
@@ -52,6 +53,22 @@ class ChangePasswordView(SuccessMessageMixin, PasswordChangeView):
     success_url = reverse_lazy('users-home')
 
 
+def get_bordered_path(path):
+    directory, file_name = os.path.split(path)
+    base_name, extension = os.path.splitext(file_name)
+    new_base_name = base_name + "_bordered"
+    new_path = os.path.join(directory, new_base_name + extension)
+    return new_path
+
+
+def get_filled_path(path):
+    directory, file_name = os.path.split(path)
+    base_name, extension = os.path.splitext(file_name)
+    new_base_name = base_name + "_filled"
+    new_path = os.path.join(directory, new_base_name + extension)
+    return new_path
+
+
 def segmentation(form_image, form_annotation):
     # Alpha
     alpha = 0.6
@@ -85,12 +102,13 @@ def segmentation(form_image, form_annotation):
     }
 
     # Image
-    original    = cv2.imread("media/" + str(form_image))
-    image       = original.copy()
+    original        = cv2.imread("media/" + str(form_image))
+    image_filled    = original.copy()
+    image_bordered  = original.copy()
     
     # Annotation
     annotation  = json.load(open("media/" + str(form_annotation)))
-    
+
     # Hulls
     hulls = {}
     for tooth in annotation['tooth']:
@@ -113,24 +131,33 @@ def segmentation(form_image, form_annotation):
             poly = poly.difference(poly_)
         polys[label] = poly
     polys = dict(sorted(polys.items(), key=lambda item: item[0], reverse=True))
-
-    # Add contours and texts
-    int_coords = lambda x: np.array(x).round().astype(np.int32)
-    for label, poly in polys.items():
-        coords_3d = np.expand_dims(int_coords(poly.exterior.coords), axis=1)
-        # Contour
+    
+    # Contours
+    def add_contours(image, image_type=""):
+        if image_type == "bordered":
+            color = (
+                int(255 * 0.173),
+                int(255 * 0.627),
+                int(255 * 0.173),
+            )
+            thickness = 5
+        elif image_type == "filled":
+            color = (
+                int(255 * colors[label][2]),
+                int(255 * colors[label][1]),
+                int(255 * colors[label][0]),
+            )
+            thickness = cv2.FILLED
         cv2.drawContours(
             image       = image,
             contours    = [coords_3d],
             contourIdx  = -1,
-            color       = (
-                int(255 * colors[label][2]),
-                int(255 * colors[label][1]),
-                int(255 * colors[label][0]),
-            ),
-            thickness   = cv2.FILLED,
+            color       = color,
+            thickness   = thickness,
         )
-        # Text
+
+    # Texts
+    def add_texts(image):
         cx = int(np.mean(coords_3d[:, :, 0]) - 50)
         cy = int(np.mean(coords_3d[:, :, 1]) + 30)
         cv2.putText(
@@ -143,9 +170,20 @@ def segmentation(form_image, form_annotation):
             thickness   = 10,
         )
 
-    # Opacity
-    image = cv2.addWeighted(
-        src1    = image, 
+    # Add contours and texts
+    int_coords = lambda x: np.array(x).round().astype(np.int32)
+    for label, poly in polys.items():
+        coords_3d = np.expand_dims(int_coords(poly.exterior.coords), axis=1)
+        # Filled image
+        add_contours(image_filled, "filled")
+        add_texts(image_filled)
+        # Bordered image
+        add_contours(image_bordered, "bordered")
+        add_texts(image_bordered)
+
+    # Filled
+    image_filled = cv2.addWeighted(
+        src1    = image_filled, 
         alpha   = alpha, 
         src2    = original, 
         beta    = 1 - alpha, 
@@ -153,7 +191,8 @@ def segmentation(form_image, form_annotation):
     )
 
     # Save
-    cv2.imwrite("media/" + str(form_image), image)
+    cv2.imwrite("media/" + get_filled_path(str(form_image)), image_filled)
+    cv2.imwrite("media/" + get_bordered_path(str(form_image)), image_bordered)
 
 
 @login_required
@@ -182,10 +221,20 @@ def ajax_request(request):
     if request.method == 'POST':
         id = request.POST.get('id')
         image = Image.objects.get(id=id)
+        os.remove("media/" + get_filled_path(str(image.front_image)))
+        os.remove("media/" + get_bordered_path(str(image.front_image)))
         image.front_image.delete()
+        os.remove("media/" + get_filled_path(str(image.left_image)))
+        os.remove("media/" + get_bordered_path(str(image.left_image)))
         image.left_image.delete()
+        os.remove("media/" + get_filled_path(str(image.right_image)))
+        os.remove("media/" + get_bordered_path(str(image.right_image)))
         image.right_image.delete()
+        os.remove("media/" + get_filled_path(str(image.upper_image)))
+        os.remove("media/" + get_bordered_path(str(image.upper_image)))
         image.upper_image.delete()
+        os.remove("media/" + get_filled_path(str(image.lower_image)))
+        os.remove("media/" + get_bordered_path(str(image.lower_image)))
         image.lower_image.delete()
         image.front_ann.delete()
         image.left_ann.delete()
