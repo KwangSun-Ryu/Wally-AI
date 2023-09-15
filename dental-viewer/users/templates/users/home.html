@@ -8,7 +8,7 @@
                 <strong>{{ img_obj.title }}</strong> <span class="float-right">{{ img_obj.created_at }}</span>
             </div>
             <div class="card-body">
-                <button type="button" class="btn btn-outline-dark btn-view" data-toggle="modal" data-target="#ModalViewer" src="media/{{ img_obj.left_image }}_bordered" title="{{ img_obj.title }} (Left)">Left</button>
+                <button type="button" class="btn btn-outline-dark btn-view" data-toggle="modal" data-target="#ModalViewer" src="media/{{ img_obj.left_image }}" title="{{ img_obj.title }} (Left)">Left</button>
                 <button type="button" class="btn btn-outline-dark btn-view" data-toggle="modal" data-target="#ModalViewer" src="media/{{ img_obj.upper_image }}" title="{{ img_obj.title }} (Upper)">Upper</button>
                 <button type="button" class="btn btn-outline-dark btn-view" data-toggle="modal" data-target="#ModalViewer" src="media/{{ img_obj.front_image }}" title="{{ img_obj.title }} (Front)">Front</button>
                 <button type="button" class="btn btn-outline-dark btn-view" data-toggle="modal" data-target="#ModalViewer" src="media/{{ img_obj.lower_image }}" title="{{ img_obj.title }} (Lower)">Lower</button>
